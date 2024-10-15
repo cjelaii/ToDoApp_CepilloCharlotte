@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <input type="text" id="taskInput" placeholder="Enter your task">
+    <input type="date" id="deadlineInput">
+    <button onclick="addTask()">Add Task</button>
+
+    <ul id="taskList"></ul>
+
+    <script>
+        // Task object constructor
+        function Task(name, deadline) {
+            this.name = name;
+            this.dateAdded = new Date().toLocaleString();
+            this.deadline = deadline;
+            this.completed = false;
+        }
+
+        // Task Manager object
+        const taskManager = {
+            tasks: [],
+            
+            // Add a new task
+            addTask(taskName, deadline) {
+                const newTask = new Task(taskName, deadline);
+                this.tasks.push(newTask);
+                this.displayTasks();
+            },
+
+            // Delete a task
+            deleteTask(index) {
+                this.tasks.splice(index, 1);
+                this.displayTasks();
+            },
+
+            // Edit a task
+            editTask(index, newName, newDeadline) {
+                this.tasks[index].name = newName;
+                this.tasks[index].deadline = newDeadline; 
+                this.displayTasks();
+            },
+
+            // Task Completion
+            taskCompletion(index) {
+                this.tasks[index].completed = !this.tasks[index].completed;
+                this.displayTasks();
+            },
+
+            // Display tasks
+            displayTasks() {
+                const taskList = document.getElementById('taskList');
+                taskList.innerHTML = '';
+                this.tasks.forEach((task, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <input type="checkbox" onchange="taskCompletion(${index})" ${task.completed ? 'checked' : ''}>
+                        <span style="text-decoration: ${task.completed ? 'line-through' : 'none'};">
+                            ${task.name} - Added on: ${task.dateAdded} - Deadline: ${task.deadline}
+                        </span>
+                        <button onclick="editTask(${index})">Edit</button> 
+                        <button onclick="deleteTask(${index})">Delete</button>`;
+                    taskList.appendChild(listItem);
+                });
+            }
+        };
+
+        // Function to handle adding a task
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const deadlineInput = document.getElementById('deadlineInput');
+            const taskName = taskInput.value;
+            const deadline = deadlineInput.value; 
+
+            if (taskName.trim() && deadline) { 
+                taskManager.addTask(taskName, deadline);
+                taskInput.value = '';
+                deadlineInput.value = ''; 
+            } else {
+                alert("Please enter a valid task and deadline.");
+            }
+        }
+
+        // Function to delete a task
+        function deleteTask(index) {
+            taskManager.deleteTask(index);
+        }
+
+        // Function to edit a task
+        function editTask(index) {
+            const newTaskName = prompt("Edit your task: ", taskManager.tasks[index].name);
+            const newDeadline = prompt("Edit deadline (YYYY-MM-DD):", taskManager.tasks[index].deadline);
+            if (newTaskName !== null && newTaskName.trim()) {
+                if (newDeadline) {
+                    taskManager.editTask(index, newTaskName, newDeadline);
+                } else {
+                    alert("Please enter a valid deadline.");
+                }
+            }
+        }
+
+        // Function to toggle task completion
+        function taskCompletion(index) {
+            taskManager.taskCompletion(index);
+        }
+    </script>
+</body>
+</html>
